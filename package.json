@@ -1,0 +1,26 @@
+{
+  "name": "yaade",
+  "version": "1.0.0",
+  "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.",
+  "main": "hardhat.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sk1122/yaade-contracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sk1122/yaade-contracts/issues"
+  },
+  "homepage": "https://github.com/sk1122/yaade-contracts#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2",
+    "hardhat": "^2.8.2"
+  }
+}

@@ -2,8 +2,10 @@ pragma solidity ^0.8.0;
 
 import "./mint.sol";
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Counters.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+import "hardhat/console.sol";
 
 contract NFTMarketplace is ReentrancyGuard {
     using Counters for Counters.Counter;
@@ -28,25 +30,27 @@ contract NFTMarketplace is ReentrancyGuard {
     mapping(uint => TokenOffered) public listings;
     mapping(uint => TokenBid[]) public bids;
 
-    event NewNFTListed(address owner, uint minAmount, address tokenContract, bool sold, uint highestBidderId);
-    event RemoveNFTListed(uint _listingId);
+    event NewNFTListed(uint id, address owner, uint minAmount, address tokenContract, bool sold, uint highestBidderId);
+    event RemoveNFTListed(uint id);
     event UpdateNFTListed(address owner, uint minAmount, address tokenContract, bool sold, uint highestBidderId);
-    event BidAdded(address bidder, uint _listingId, uint bid, uint index);
-    event BidUpdated(address bidder, uint _listingId, uint bid, uint index);
-    event BidRevoked(address bidder, uint _listingId, uint bid, uint index);
-    event BidWinner(address bidder, uint _listingId, uint bid, uint index);
+    event BidAdded(address bidder, uint id, uint bid, uint index);
+    event BidUpdated(address bidder, uint id, uint bid, uint index);
+    event BidRevoked(address bidder, uint id, uint bid, uint index);
+    event BidWinner(address bidder, uint id, uint bid, uint index);
 
     function getLength(uint _listingId) view public returns(uint count) {
         return bids[_listingId].length;
     }
 
-    function listNFT(uint minAmount, address tokenContract, uint tokenId) public payable returns (uint) {
+    function listNFT(uint minAmount, address tokenContract, uint tokenId) public returns (uint) {
         require(minAmount >= 1, "Amount should atleast be 1 wei");
         uint id = listingId.current();
 
         TokenOffered memory listing = TokenOffered(msg.sender, minAmount, tokenContract, false, 0, tokenId);
         listings[id] = listing;
-        emit NewNFTListed(msg.sender, minAmount, tokenContract, listing.sold, 0);
+        emit NewNFTListed(id, msg.sender, minAmount, tokenContract, listing.sold, 0);
+
+        listingId.increment();
 
         return id;
     }
@@ -89,7 +93,7 @@ contract NFTMarketplace is ReentrancyGuard {
 
         uint length;
         if(bids[_listingId].length == 0) length = 0;
-        else length = bids[_listingId].length - 1;
+        else length = bids[_listingId].length;
 
         TokenBid memory tokenBid = TokenBid(msg.sender, listings[_listingId].tokenContract, bid, length);
         bids[_listingId].push(tokenBid);
@@ -102,11 +106,13 @@ contract NFTMarketplace is ReentrancyGuard {
         (_bid, found) = findBid(_listingId, address(msg.sender));
         require(found, "Bid not found");
         TokenBid storage tokenBid = bids[_listingId][_bid];
+        require(bidAmount > tokenBid.bid, "Bid should be greater than previous bid");
+        require(bidAmount - tokenBid.bid <= msg.value, "Send some more ether");
         require(msg.sender == tokenBid.bidder, "You are not the bidder");
 
         tokenBid.bid = bidAmount;
 
-        emit BidUpdated(tokenBid.bidder, _listingId, _bid, _bid);
+        emit BidUpdated(tokenBid.bidder, _listingId, tokenBid.bid, tokenBid.index);
     }
 
     function deleteBid(uint _listingId) public {
@@ -125,7 +131,7 @@ contract NFTMarketplace is ReentrancyGuard {
         emit BidRevoked(tokenBid.bidder, _listingId, tokenBid.bid, _bid);
     }
 
-    function getHighestBid(uint _listingId) public returns (TokenBid memory) {
+    function getHighestBid(uint _listingId) public {
         TokenBid[] memory bidList = bids[_listingId];
         TokenBid memory highestBid;
 
@@ -138,7 +144,7 @@ contract NFTMarketplace is ReentrancyGuard {
         TokenOffered storage offered = listings[_listingId];
         offered.highestBidderId = highestBid.index;
 
-        return highestBid;
+        emit UpdateNFTListed(offered.owner, offered.minAmount, offered.tokenContract, offered.sold, offered.highestBidderId);
     }
 
     function declareWinner(uint _listingId, uint bidId) public {
@@ -146,7 +152,7 @@ contract NFTMarketplace is ReentrancyGuard {
 
         TokenBid memory bid = bids[_listingId][bidId];
 
-        IERC721(bid.tokenContract).safeTransferFrom(address(this), bid.bidder, listings[_listingId].tokenId);
+        // IERC721(bid.tokenContract).safeTransferFrom(address(this), bid.bidder, listings[_listingId].tokenId);
 
         emit BidWinner(bid.bidder, _listingId, bid.bid, bidId);
     }
