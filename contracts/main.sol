@@ -76,7 +76,7 @@ contract NFTMarketplace is ReentrancyGuard {
         return true;
     }
 
-    function findBid(uint _listingId, address owner) internal view returns (uint, bool) {
+    function findBid(uint _listingId, address owner) public view returns (uint, bool) {
         TokenBid[] memory _bids = bids[_listingId];
         for(uint i=0;i<_bids.length;i++) {
             if(_bids[i].bidder == owner) return (i, true);
@@ -123,11 +123,14 @@ contract NFTMarketplace is ReentrancyGuard {
         TokenBid storage tokenBid = bids[_listingId][_bid];
         require(msg.sender == tokenBid.bidder, "You are not the bidder");
 
-        delete bids[_listingId][_bid];
-
-        require(tokenBid.bid < address(this).balance, "Balance is lower");
+        console.log("%d %d", address(this).balance, tokenBid.bid);
+        require(tokenBid.bid <= address(this).balance, "Balance is lower");
+        
         payable(msg.sender).transfer(tokenBid.bid);
+        console.log("Not Problem");
+        // require(sent, "Transaction not sent");
 
+        delete bids[_listingId][_bid];
         emit BidRevoked(tokenBid.bidder, _listingId, tokenBid.bid, _bid);
     }
 
