@@ -14,7 +14,7 @@ contract NFTMarketplace is ReentrancyGuard {
     struct TokenOffered {
         address owner;
         uint minAmount;
-        address tokenContract;
+        string date;
         bool sold;
         uint highestBidderId;
         uint tokenId;
@@ -22,7 +22,7 @@ contract NFTMarketplace is ReentrancyGuard {
 
     struct TokenBid {
         address bidder;
-        address tokenContract;
+        string date;
         uint bid;
         uint index;
     }
@@ -30,9 +30,9 @@ contract NFTMarketplace is ReentrancyGuard {
     mapping(uint => TokenOffered) public listings;
     mapping(uint => TokenBid[]) public bids;
 
-    event NewNFTListed(uint id, address owner, uint minAmount, address tokenContract, bool sold, uint highestBidderId);
+    event NewNFTListed(uint id, address owner, uint minAmount, string date, bool sold, uint highestBidderId);
     event RemoveNFTListed(uint id);
-    event UpdateNFTListed(address owner, uint minAmount, address tokenContract, bool sold, uint highestBidderId);
+    event UpdateNFTListed(address owner, uint minAmount, string date, bool sold, uint highestBidderId);
     event BidAdded(address bidder, uint id, uint bid, uint index);
     event BidUpdated(address bidder, uint id, uint bid, uint index);
     event BidRevoked(address bidder, uint id, uint bid, uint index);
@@ -42,42 +42,43 @@ contract NFTMarketplace is ReentrancyGuard {
         return bids[_listingId].length;
     }
 
-    function listNFT(uint minAmount, address tokenContract, uint tokenId) public returns (uint) {
-        require(minAmount >= 1, "Amount should atleast be 1 wei");
-        uint id = listingId.current();
-
-        TokenOffered memory listing = TokenOffered(msg.sender, minAmount, tokenContract, false, 0, tokenId);
-        listings[id] = listing;
-        emit NewNFTListed(id, msg.sender, minAmount, tokenContract, listing.sold, 0);
-
-        listingId.increment();
-
-        return id;
+    function getBids(uint _listingId) public view returns (TokenBid[] memory) {
+        return bids[_listingId];
     }
 
-    function removeNFT(uint _listingId) public returns (bool) {
-        require(listings[_listingId].tokenContract != address(0), "Listing Doesn't Exist");
-        require(listings[_listingId].owner == msg.sender, "You not owner then why sending this shit");
+    function createListing(uint day, string memory date, uint minAmount) public {
+        TokenOffered memory token_offered = listings[day];
 
-        delete listings[_listingId];
-        emit RemoveNFTListed(_listingId);
+        token_offered.date = date;
+        token_offered.minAmount = minAmount;
+        token_offered.owner = msg.sender;
+        token_offered.sold = false;
+        token_offered.highestBidderId = 0;
 
-        return true;
+        listings[day] = token_offered;
+
+        emit NewNFTListed(day, token_offered.owner, token_offered.minAmount, token_offered.date, token_offered.sold, token_offered.highestBidderId);
     }
 
     function updateNFT(uint _listingId, uint minAmount, bool _sold) public returns (bool) {
-        require(listings[_listingId].tokenContract != address(0), "Listing Doesn't Exist");
+        // require(listings[_listingId].tokenContract != address(0), "Listing Doesn't Exist");
+        require(!listings[_listingId].sold, "Already Sold");
         require(listings[_listingId].owner == msg.sender, "You not owner then why sending this shit");
 
         listings[_listingId].minAmount = minAmount;
         listings[_listingId].sold = _sold;
-        emit UpdateNFTListed(listings[_listingId].owner, listings[_listingId].minAmount, listings[_listingId].tokenContract, listings[_listingId].sold, listings[_listingId].highestBidderId);
+        emit UpdateNFTListed(listings[_listingId].owner, listings[_listingId].minAmount, listings[_listingId].date, listings[_listingId].sold, listings[_listingId].highestBidderId);
 
         return true;
     }
 
     function findBid(uint _listingId, address owner) public view returns (uint, bool) {
         TokenBid[] memory _bids = bids[_listingId];
+        
+        for(uint i=0;i<_bids.length;i++) {
+            console.log("%d %s", _bids[i].bid, _bids[i].bidder);
+        }
+
         for(uint i=0;i<_bids.length;i++) {
             if(_bids[i].bidder == owner) return (i, true);
         }
@@ -87,7 +88,8 @@ contract NFTMarketplace is ReentrancyGuard {
 
     function addBid(uint _listingId, uint bid) public payable {
         require(msg.value == bid, "Send same amount of ether to me");
-        require(listings[_listingId].tokenContract != address(0), "Listing Dosen't Exist");
+        // require(listings[_listingId].tokenContract != address(0), "Listing Dosen't Exist");
+        require(!listings[_listingId].sold, "Already Sold");
         require(listings[_listingId].owner != msg.sender, "You not owner then why sending this shit");
         require(listings[_listingId].minAmount < msg.value, "Send some more");
 
@@ -95,7 +97,7 @@ contract NFTMarketplace is ReentrancyGuard {
         if(bids[_listingId].length == 0) length = 0;
         else length = bids[_listingId].length;
 
-        TokenBid memory tokenBid = TokenBid(msg.sender, listings[_listingId].tokenContract, bid, length);
+        TokenBid memory tokenBid = TokenBid(msg.sender, listings[_listingId].date, bid, length);
         bids[_listingId].push(tokenBid);
         emit BidAdded(msg.sender, _listingId, bid, tokenBid.index);
     }
@@ -109,6 +111,8 @@ contract NFTMarketplace is ReentrancyGuard {
         require(bidAmount > tokenBid.bid, "Bid should be greater than previous bid");
         require(bidAmount - tokenBid.bid <= msg.value, "Send some more ether");
         require(msg.sender == tokenBid.bidder, "You are not the bidder");
+
+        console.log('%d %s', tokenBid.bid, tokenBid.bidder);
 
         tokenBid.bid = bidAmount;
 
@@ -147,7 +151,7 @@ contract NFTMarketplace is ReentrancyGuard {
         TokenOffered storage offered = listings[_listingId];
         offered.highestBidderId = highestBid.index;
 
-        emit UpdateNFTListed(offered.owner, offered.minAmount, offered.tokenContract, offered.sold, offered.highestBidderId);
+        emit UpdateNFTListed(offered.owner, offered.minAmount, offered.date, offered.sold, offered.highestBidderId);
     }
 
     function declareWinner(uint _listingId, uint bidId) public {

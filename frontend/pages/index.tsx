@@ -4,9 +4,16 @@ import Head from 'next/head'
 import { ethers } from 'ethers'
 import abi from '../interface/abi.json'
 import Modal from '../components/Modal'
+import { Bid } from '../types/bid'
+import mintNFT from '../utils/mint'
 
 // const CONTRACT_ADDRESS = '0x5a28172e8afc0b79f743fef4cbe2724c3c8358e4'
-const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+const CONTRACT_ADDRESS = '0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0'
+
+function dateFromDay(year: number, day: number){
+  var date = new Date(year, 0); // initialize a date in `year-01-01`
+  return new Date(date.setDate(day)); // add the number of days
+}
 
 export default function Home() {
   const [account, setAccount] = useState('')
@@ -15,6 +22,7 @@ export default function Home() {
   const [date, setDate] = useState('')
   const [bid, setBid] = useState('')
   const [currentBid, setCurrentBid] = useState('0')
+  const [allBids, setAllBids] = useState<Bid[]>([])
 
   var provider: any, signer: any, contract: any;
 
@@ -99,7 +107,7 @@ export default function Home() {
       const bid: any = await contract.addBid(day, bidAmount, options)
       await bid.wait()
     } catch (e) {
-      console.log(e)
+      listNFT(day)
       return false
     }
 
@@ -113,6 +121,8 @@ export default function Home() {
     let bidAmountt = ethers.utils.parseEther(bidAmount)
     let value: string = bidAmountt.sub(bid.bid).toString()
 
+    console.log(bid, bid.bid.toString(), "Yo")
+
     const options = { value: ethers.utils.parseEther(ethers.utils.formatEther(value)) }
     let updateNFT = await contract.updateBid(listingId, bidAmountt, options)
     updateNFT = await updateNFT.wait()
@@ -125,6 +135,14 @@ export default function Home() {
     deleteBid = await deleteBid.wait()
   }
 
+  const getAllBids = async (listingId: number) => {
+    connectContract()
+
+    let bids = await contract.getBids(listingId)
+    console.log(bids, "das")
+    return bids
+  }
+
   const submit = async () => {
     let bidAmount = ethers.utils.parseEther(bid.toString()).toString()
     
@@ -134,9 +152,9 @@ export default function Home() {
     else console.log("Not Finished:(")
   }
 
-  const listNFT = async () => {
+  const listNFT = async (date: number) => {
     connectContract()
-    let listNFT = await contract.listNFT(120, account, 0);
+    let listNFT = await contract.createListing(date, dateFromDay(new Date().getFullYear(), date).toJSON().slice(0, 10), 120);
   }
 
   useEffect(() => {
@@ -161,6 +179,25 @@ export default function Home() {
   }, [isOpen])
 
   useEffect(() => {
+    (async function() {
+      if(isOpen) {
+        try {
+          let bids = await getAllBids(Number(date))
+          setAllBids(bids)
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    })()
+  }, [isOpen])
+
+  useEffect(() => {
+    allBids.map(value => {
+      console.log(value.bid.toString())
+    })
+  }, [allBids])
+
+  useEffect(() => {
     checkWalletIsConnected()
   }, [])
 
@@ -176,12 +213,13 @@ export default function Home() {
         <h1 className='text-5xl font-bold'>Buy Calendar NFT and cherish your memories</h1>
         
         {!isAuthenticated && <a onClick={() => login()} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">Connect Wallet</a>}
-        {isAuthenticated && <a onClick={() => listNFT()} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
+        {isAuthenticated && <a onClick={() => listNFT(0)} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
         {isAuthenticated && <p>{account}</p>}
         {/* {isAuthenticated && <a onClick={() => revokeBid('dsa', 0)} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
         {isAuthenticated && <a onClick={() => updateBid('dsa', 0, '150000000000000000', false)} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
         {isAuthenticated && <a onClick={() => bidOnDate(0, '1210000000000000')} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>} */}
         <button onClick={async () => {console.log(await fetchBid(0))}}>Click ME</button>
+          <button onClick={() => mintNFT()}>NFT</button>
 
         <div className="w-full h-screen grid grid-cols-7 grid-rows-5">
           {[...Array(31).keys()].map((i) => (
@@ -190,7 +228,8 @@ export default function Home() {
         </div>
       </div>
 
-      {isOpen && <Modal title={date} isOpen={isOpen} setIsOpen={setIsOpen} submit={submit} bid={bid} setBid={setBid} currentBid={currentBid} updateBid={updateBid}></Modal> }
+
+      {isOpen && <Modal title={date} isOpen={isOpen} setIsOpen={setIsOpen} submit={submit} bid={bid} setBid={setBid} currentBid={currentBid} updateBid={updateBid} allBids={allBids}></Modal> }
     </div>
   )
 }
