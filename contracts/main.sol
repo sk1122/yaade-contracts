@@ -46,6 +46,10 @@ contract NFTMarketplace is ReentrancyGuard {
         return bids[_listingId];
     }
 
+    function getNFT(uint _listingId) public view returns(TokenOffered memory) {
+        return listings[_listingId];
+    }
+
     function createListing(uint day, string memory date, uint minAmount) public {
         TokenOffered memory token_offered = listings[day];
 
@@ -109,7 +113,7 @@ contract NFTMarketplace is ReentrancyGuard {
         require(found, "Bid not found");
         TokenBid storage tokenBid = bids[_listingId][_bid];
         require(bidAmount > tokenBid.bid, "Bid should be greater than previous bid");
-        require(bidAmount - tokenBid.bid <= msg.value, "Send some more ether");
+        require(bidAmount - tokenBid.bid == msg.value, "Send Exact Difference of Amount");
         require(msg.sender == tokenBid.bidder, "You are not the bidder");
 
         console.log('%d %s', tokenBid.bid, tokenBid.bidder);
@@ -143,6 +147,8 @@ contract NFTMarketplace is ReentrancyGuard {
         TokenBid memory highestBid;
 
         for(uint i=0;i<bidList.length;i++) {
+            console.log("%s %d bids", bidList[i].bidder, bidList[i].bid);
+            console.log("%s %d bidsssss", highestBid.bidder, highestBid.bid);
             if(bidList[i].bid > highestBid.bid) {
                 highestBid = bidList[i];
             }
@@ -155,7 +161,9 @@ contract NFTMarketplace is ReentrancyGuard {
     }
 
     function declareWinner(uint _listingId, uint bidId) public {
-        require(bidId == listings[_listingId].highestBidderId, "msg.sender is not highest bidder");
+        require(bidId == listings[_listingId].highestBidderId, "msg.sender is not h ighest bidder");
+
+        listings[_listingId].sold = true;
 
         TokenBid memory bid = bids[_listingId][bidId];
 

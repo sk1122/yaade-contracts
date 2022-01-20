@@ -8,7 +8,7 @@ import { Bid } from '../types/bid'
 import mintNFT from '../utils/mint'
 
 // const CONTRACT_ADDRESS = '0x5a28172e8afc0b79f743fef4cbe2724c3c8358e4'
-const CONTRACT_ADDRESS = '0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0'
+const CONTRACT_ADDRESS = '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9'
 
 function dateFromDay(year: number, day: number){
   var date = new Date(year, 0); // initialize a date in `year-01-01`
@@ -23,6 +23,7 @@ export default function Home() {
   const [bid, setBid] = useState('')
   const [currentBid, setCurrentBid] = useState('0')
   const [allBids, setAllBids] = useState<Bid[]>([])
+  const [sold, setSold] = useState(false)
 
   var provider: any, signer: any, contract: any;
 
@@ -36,6 +37,14 @@ export default function Home() {
     connectContract()
     contract.on('BidAdded', (bidder: string, id: number, bid: number, index: number) => {
       console.log(bidder, id, index, bid)
+    })
+
+    contract.on('UpdateNFTListed', (owner: string, minAmount: number, date: string, sold: boolean, highestBidderId: number) => {
+      console.log('NFT', highestBidderId.toString())
+    })
+
+    contract.on('BidWinner', (bidder: string, _listingId: number, bid: number, bidId: number) => {
+      console.log('NFT', bidder, _listingId.toString(), bid.toString, bidId.toString())
     })
   }, [account])
   
@@ -87,6 +96,7 @@ export default function Home() {
     connectContract()
 
     try {
+      console.log(contract, listingId, account)
       let [bidId, found] = await contract.findBid(listingId, account)
       if(!found) return null
       bidId = bidId.toNumber()
@@ -107,7 +117,6 @@ export default function Home() {
       const bid: any = await contract.addBid(day, bidAmount, options)
       await bid.wait()
     } catch (e) {
-      listNFT(day)
       return false
     }
 
@@ -157,6 +166,27 @@ export default function Home() {
     let listNFT = await contract.createListing(date, dateFromDay(new Date().getFullYear(), date).toJSON().slice(0, 10), 120);
   }
 
+  const findHighestBidder = async () => {
+    connectContract()
+
+    let highestBidder = await contract.getHighestBid(0)
+  }
+
+  const declareWinner = async () => {
+    connectContract()
+    let winner = await contract.declareWinner(1, 0)
+  }
+
+  const getNFT = async (day: number) => {
+    connectContract()
+
+    let nft = await contract.getNFT(day)
+
+    console.log(nft)
+
+    return nft
+  }
+
   useEffect(() => {
     if(account.length !== 0) {
       // listNFT()
@@ -173,6 +203,20 @@ export default function Home() {
           setCurrentBid(bid.bid.toString())
         } catch (e) {
           setCurrentBid('0')
+        }
+      }
+    })()
+  }, [isOpen])
+
+  useEffect(() => {
+    (async function() {
+      if(isOpen) {
+        let nft = await getNFT(Number(date))
+
+        if(nft.sold) {
+          setSold(true)
+        } else {
+          setSold(false)
         }
       }
     })()
@@ -204,31 +248,28 @@ export default function Home() {
   // submit
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <Head>
-        <title>Yaade</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <div className="text-inter text-white w-full h-full bg-gray-800 flex flex-col justify-start items-center p-36 space-y-16">
+    <div className='w-full min-h-screen bg-gray-800 flex flex-col justify-start items-center text-white space-y-10'>
+      <div className="text-inter text-white w-full h-full bg-gray-800 flex flex-col justify-start items-center px-36 pt-20 space-y-16">
         <h1 className='text-5xl font-bold'>Buy Calendar NFT and cherish your memories</h1>
-        
-        {!isAuthenticated && <a onClick={() => login()} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">Connect Wallet</a>}
-        {isAuthenticated && <a onClick={() => listNFT(0)} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
-        {isAuthenticated && <p>{account}</p>}
-        {/* {isAuthenticated && <a onClick={() => revokeBid('dsa', 0)} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
-        {isAuthenticated && <a onClick={() => updateBid('dsa', 0, '150000000000000000', false)} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>}
-        {isAuthenticated && <a onClick={() => bidOnDate(0, '1210000000000000')} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">List NFT</a>} */}
-        <button onClick={async () => {console.log(await fetchBid(0))}}>Click ME</button>
-          <button onClick={() => mintNFT()}>NFT</button>
-
-        <div className="w-full h-screen grid grid-cols-7 grid-rows-5">
+      </div>
+      <div className="flex justify-end items-center w-full px-16 space-x-3">
+        <h2 className='text-lg font-semibold'>{new Date().toLocaleString('default', { month: 'long' })}</h2>
+        <h2 className='text-lg font-semibold'>'{new Date().toLocaleString('default', { year: '2-digit' })}</h2>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div className="w-full h-full flex justify-end items-center px-16">  
+        <div className="w-full h-screen grid grid-cols-7 grid-rows-5 gap-5">
           {[...Array(31).keys()].map((i) => (
-            <div onClick={() => {setDate(i.toString()); setIsOpen(!isOpen)}} className='w-32 h-32 bg-yellow-400 flex justify-center items-center text-5xl cursor-pointer' key={i}>{i}</div>
-          ))}
+            <div onClick={() => {setDate((i + 1).toString()); setIsOpen(!isOpen)}} className='relative w-full h-full bg-yellow-400 flex justify-center items-center text-5xl rounded-xl cursor-pointer' key={i}>{(new Date().getDate() + 2) !== (i + 1) ?  <p><span className='bg-yellow-900 p-2 rounded-xl absolute top-5 right-5 text-sm'>Sold</span> {i+1}</p> : <p><span className='bg-green-500 p-2 rounded-xl absolute top-5 right-5 text-sm'>Available</span>{i+1}</p>}</div>
+            ))}
         </div>
       </div>
-
-
+      {isAuthenticated && <a onClick={() => declareWinner()} id="btn-2" className="cursor-pointer bg-gradient-to-r from-purple-400 to-violet-700 px-5 py-2 text-xl rounded-md hover:bg-gradient-to-br hover:duration-700 duration-700">Highest Bidder</a>}
       {isOpen && <Modal title={date} isOpen={isOpen} setIsOpen={setIsOpen} submit={submit} bid={bid} setBid={setBid} currentBid={currentBid} updateBid={updateBid} allBids={allBids}></Modal> }
     </div>
   )
