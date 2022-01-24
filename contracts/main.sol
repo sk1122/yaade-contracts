@@ -1,16 +1,13 @@
 pragma solidity ^0.8.0;
 
-import "./mint.sol";
+// import "./mint.sol";
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "hardhat/console.sol";
 
-contract NFTMarketplace is ReentrancyGuard {
-    using Counters for Counters.Counter;
-    Counters.Counter private listingId;
-    
+library Types {
     struct TokenOffered {
         address owner;
         uint minAmount;
@@ -26,9 +23,14 @@ contract NFTMarketplace is ReentrancyGuard {
         uint bid;
         uint index;
     }
+}
 
-    mapping(uint => TokenOffered) public listings;
-    mapping(uint => TokenBid[]) public bids;
+contract NFTMarketplace is ReentrancyGuard {
+    using Counters for Counters.Counter;
+    Counters.Counter private listingId;
+
+    mapping(uint => Types.TokenOffered) public listings;
+    mapping(uint => Types.TokenBid[]) public bids;
 
     event NewNFTListed(uint id, address owner, uint minAmount, string date, bool sold, uint highestBidderId);
     event RemoveNFTListed(uint id);
@@ -42,16 +44,16 @@ contract NFTMarketplace is ReentrancyGuard {
         return bids[_listingId].length;
     }
 
-    function getBids(uint _listingId) public view returns (TokenBid[] memory) {
+    function getBids(uint _listingId) public view returns (Types.TokenBid[] memory) {
         return bids[_listingId];
     }
 
-    function getNFT(uint _listingId) public view returns(TokenOffered memory) {
+    function getNFT(uint _listingId) public view returns(Types.TokenOffered memory) {
         return listings[_listingId];
     }
 
     function createListing(uint day, string memory date, uint minAmount) public {
-        TokenOffered memory token_offered = listings[day];
+        Types.TokenOffered memory token_offered = listings[day];
 
         token_offered.date = date;
         token_offered.minAmount = minAmount;
@@ -66,7 +68,7 @@ contract NFTMarketplace is ReentrancyGuard {
 
     function updateNFT(uint _listingId, uint minAmount, bool _sold) public returns (bool) {
         // require(listings[_listingId].tokenContract != address(0), "Listing Doesn't Exist");
-        require(!listings[_listingId].sold, "Already Sold");
+        console.log("Update NFT %s %s", msg.sender, listings[_listingId].owner);
         require(listings[_listingId].owner == msg.sender, "You not owner then why sending this shit");
 
         listings[_listingId].minAmount = minAmount;
@@ -76,18 +78,15 @@ contract NFTMarketplace is ReentrancyGuard {
         return true;
     }
 
-    function findBid(uint _listingId, address owner) public view returns (uint, bool) {
-        TokenBid[] memory _bids = bids[_listingId];
-        
-        for(uint i=0;i<_bids.length;i++) {
-            console.log("%d %s", _bids[i].bid, _bids[i].bidder);
-        }
+    function findBid(uint _listingId, address owner) public view returns (uint bidId, bool found) {
+        Types.TokenBid[] memory _bids = bids[_listingId];
 
         for(uint i=0;i<_bids.length;i++) {
             if(_bids[i].bidder == owner) return (i, true);
         }
 
-        return (0, false);
+        bidId = 0;
+        found = false;
     } 
 
     function addBid(uint _listingId, uint bid) public payable {
@@ -101,7 +100,7 @@ contract NFTMarketplace is ReentrancyGuard {
         if(bids[_listingId].length == 0) length = 0;
         else length = bids[_listingId].length;
 
-        TokenBid memory tokenBid = TokenBid(msg.sender, listings[_listingId].date, bid, length);
+        Types.TokenBid memory tokenBid = Types.TokenBid(msg.sender, listings[_listingId].date, bid, length);
         bids[_listingId].push(tokenBid);
         emit BidAdded(msg.sender, _listingId, bid, tokenBid.index);
     }
@@ -111,7 +110,7 @@ contract NFTMarketplace is ReentrancyGuard {
         bool found;
         (_bid, found) = findBid(_listingId, address(msg.sender));
         require(found, "Bid not found");
-        TokenBid storage tokenBid = bids[_listingId][_bid];
+        Types.TokenBid storage tokenBid = bids[_listingId][_bid];
         require(bidAmount > tokenBid.bid, "Bid should be greater than previous bid");
         require(bidAmount - tokenBid.bid == msg.value, "Send Exact Difference of Amount");
         require(msg.sender == tokenBid.bidder, "You are not the bidder");
@@ -128,7 +127,7 @@ contract NFTMarketplace is ReentrancyGuard {
         bool found;
         (_bid, found) = findBid(_listingId, address(msg.sender));
         require(found, "Bid not found");
-        TokenBid storage tokenBid = bids[_listingId][_bid];
+        Types.TokenBid storage tokenBid = bids[_listingId][_bid];
         require(msg.sender == tokenBid.bidder, "You are not the bidder");
 
         console.log("%d %d", address(this).balance, tokenBid.bid);
@@ -143,8 +142,8 @@ contract NFTMarketplace is ReentrancyGuard {
     }
 
     function getHighestBid(uint _listingId) public {
-        TokenBid[] memory bidList = bids[_listingId];
-        TokenBid memory highestBid;
+        Types.TokenBid[] memory bidList = bids[_listingId];
+        Types.TokenBid memory highestBid;
 
         for(uint i=0;i<bidList.length;i++) {
             console.log("%s %d bids", bidList[i].bidder, bidList[i].bid);
@@ -154,18 +153,23 @@ contract NFTMarketplace is ReentrancyGuard {
             }
         }
         
-        TokenOffered storage offered = listings[_listingId];
+        Types.TokenOffered storage offered = listings[_listingId];
         offered.highestBidderId = highestBid.index;
 
         emit UpdateNFTListed(offered.owner, offered.minAmount, offered.date, offered.sold, offered.highestBidderId);
     }
 
     function declareWinner(uint _listingId, uint bidId) public {
-        require(bidId == listings[_listingId].highestBidderId, "msg.sender is not h ighest bidder");
+        Types.TokenBid memory bid = bids[_listingId][bidId];
 
         listings[_listingId].sold = true;
+        listings[_listingId].owner = bid.bidder;
 
-        TokenBid memory bid = bids[_listingId][bidId];
+        for(uint i=0;i<bids[_listingId].length;i++) {
+            if(bids[_listingId][i].bidder != msg.sender) {
+                payable(bids[_listingId][i].bidder).transfer(bids[_listingId][i].bid);
+            }
+        }
 
         // IERC721(bid.tokenContract).safeTransferFrom(address(this), bid.bidder, listings[_listingId].tokenId);
 
