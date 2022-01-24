@@ -5,7 +5,7 @@ type Props = {};
 const DisplayData = (props: Props) => {
   return (
     <div className="w-full">
-      <div className="flex flex-col">
+      <div className="flex flex-col items-center md:items-start">
         {/* date */}
         <div className="font-semibold text-md mb-2">Jan 2022</div>
         {/* day */}

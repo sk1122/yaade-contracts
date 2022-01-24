@@ -5,7 +5,7 @@ type Props = {};
 const Calender = (props: Props) => {
   return (
     <div className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
-      <div className="text-4xl font-bold mt-12 mb-10">
+      <div className="text-4xl font-bold mt-12 mb-10 mx-6 md:mx-2">
         With Calendar NFT cherish your memories forever
       </div>
       <div className="w-5/6 flex justify-end font-semibold mb-6">
@@ -33,7 +33,7 @@ const Calender = (props: Props) => {
             clip-rule="evenodd"></path>
         </svg>
       </div>
-      <div className="w-5/6 grid grid-cols-7 gap-y-4 place-items-center">
+      <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
         <SmallCard />
         <SmallCard />
         <SmallCard />
