@@ -2,7 +2,7 @@ type Props = {};
 
 const StackedCard = (props: Props) => {
   return (
-    <main className="w-full relative flex justify-end h-fit rounded-r-lg">
+    <main className="w-full relative flex justify-center md:justify-end h-fit rounded-r-lg">
       <div className="relative h-96 w-80">
         <div className="bg-[#DFD3C9] shadow-md inline-block w-80 h-96 rounded-lg absolute bottom-0 transform -rotate-6 border border-black">
           <div className="h-1/5 border-b-2 border-black flex items-center justify-center">
