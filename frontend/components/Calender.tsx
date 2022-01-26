@@ -1,10 +1,13 @@
 import SmallCard from "./SmallCard";
+import { useAccountContext } from '../pages/_context'
 
 type Props = {};
 
 const Calender = (props: Props) => {
+  const { isOpen, setIsOpen } = useAccountContext()
+
   return (
-    <div className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
+    <div onClick={() => setIsOpen(true)} className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
       <div className="text-4xl font-bold mt-12 mb-10 mx-6 md:mx-2">
         With Calendar NFT cherish your memories forever
       </div>
@@ -34,29 +37,9 @@ const Calender = (props: Props) => {
         </svg>
       </div>
       <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
-        <SmallCard />
+        {[...Array(new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()).keys()].map(value => (
+          <SmallCard day={value} />
+        ))}
       </div>
     </div>
   );

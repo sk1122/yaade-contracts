@@ -1,6 +1,11 @@
+import { useContext, useEffect } from 'react'
+import { useAccountContext } from '../pages/_context'
+
 type Props = {};
 
-const StackedCard = (props: Props) => {
+const StackedCard = ({}: Props) => {  
+  const { selectedDate } = useAccountContext()
+  
   return (
     <main className="w-full relative flex justify-center md:justify-end h-fit rounded-r-lg">
       <div className="relative h-96 w-80">
@@ -24,8 +29,8 @@ const StackedCard = (props: Props) => {
             <div className="bg-black w-1/2 h-1/6 rounded-full" />
           </div>
           <div className="w-full h-full absolute top-0 flex flex-col items-center justify-center">
-            <div className="text-[140px] font-bold">21</div>
-            <div className="text-xl font-bold">January, 2022</div>
+            <div className="text-[140px] font-bold">{selectedDate.getDate()}</div>
+            <div className="text-xl font-bold">{selectedDate.toLocaleDateString(undefined, { month: 'long' })}, {selectedDate.toLocaleDateString(undefined, { year: 'numeric' })}</div>
           </div>
         </div>
       </div>

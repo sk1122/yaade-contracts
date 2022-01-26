@@ -159,6 +159,21 @@ contract NFTMarketplace is ReentrancyGuard {
         emit UpdateNFTListed(offered.owner, offered.minAmount, offered.date, offered.sold, offered.highestBidderId);
     }
 
+    function getHighestBidReturn(uint _listingId) public view returns(Types.TokenBid memory bid) {
+        Types.TokenBid[] memory bidList = bids[_listingId];
+        Types.TokenBid memory highestBid;
+
+        for(uint i=0;i<bidList.length;i++) {
+            console.log("%s %d bids", bidList[i].bidder, bidList[i].bid);
+            console.log("%s %d bidsssss", highestBid.bidder, highestBid.bid);
+            if(bidList[i].bid > highestBid.bid) {
+                highestBid = bidList[i];
+            }
+        }
+        
+        bid = highestBid;
+    }
+
     function declareWinner(uint _listingId, uint bidId) public {
         Types.TokenBid memory bid = bids[_listingId][bidId];
 

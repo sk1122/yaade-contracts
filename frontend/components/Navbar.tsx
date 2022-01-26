@@ -1,8 +1,11 @@
 import React from "react";
+import { useAccountContext } from '../pages/_context'
 
 type Props = {};
 
 const Navbar = (props: Props) => {
+  const { account, isAuthenticated, login } = useAccountContext()
+
   return (
     <div className="w-full flex justify-between items-center px-12 py-6">
       <div className="text-xl font-extrabold">YAADEIN</div>
@@ -10,12 +13,12 @@ const Navbar = (props: Props) => {
         <div className="font-medium text-base flex items-center space-x-2">
           <div className="w-6 h-6 rounded-full bg-black" />
           <div className="truncate w-20 cursor-pointer">
-            0xnv77g8hg78hnegnhgiohguiheqrgn0xF9217C4688461B18E38Ceb6c433232a7840f67Ba
+            {account}
           </div>
         </div>
-        <button className="text-base font-medium cursor-pointer">
+        {!isAuthenticated && <button onClick={() => login()} className="text-base font-medium cursor-pointer">
           Connect Wallet
-        </button>
+        </button>}
       </div>
     </div>
   );
