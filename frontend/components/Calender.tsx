@@ -1,10 +1,54 @@
 import SmallCard from "./SmallCard";
 import { useAccountContext } from '../pages/_context'
+import { useEffect, useState } from "react";
 
 type Props = {};
 
+interface Listing {
+  date: string
+  owner: string
+}
+
 const Calender = (props: Props) => {
-  const { isOpen, setIsOpen } = useAccountContext()
+  const { account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT } = useAccountContext()
+
+  const [bidder, setBidder] = useState<Listing>({} as Listing)
+  const [date, setDate] = useState(0)
+  const [winner, setWinner] = useState(false)
+  const [nft, setNFT] = useState('')
+
+  useEffect(() => {
+    setNFT('')
+    if(date > 0) {
+      getListing(date + 1)
+      .then((v: any) => {setBidder(v)})
+
+      getWinner(date)
+      .then((v: any) => console.log(v))
+
+      try {
+        console.log(1)
+        getMintedNFT(date + 1)
+        .then((json: any, owner: any) => {
+          json = JSON.parse(json[0])
+          setNFT(json['image_data'])
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    console.log(bidder.owner, account)
+    if(bidder && account) {
+      if(bidder.owner.toUpperCase() === account.toUpperCase()) setWinner(true)
+    }
+  }, [bidder])
+
+  useEffect(() => {
+    console.log(bid)
+  }, [])
 
   return (
     <div onClick={() => setIsOpen(true)} className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
@@ -38,7 +82,7 @@ const Calender = (props: Props) => {
       </div>
       <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
         {[...Array(new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()).keys()].map(value => (
-          <SmallCard day={value} />
+          <SmallCard day={value} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} />
         ))}
       </div>
     </div>

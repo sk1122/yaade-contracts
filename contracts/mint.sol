@@ -21,8 +21,8 @@ contract NFTMint is ERC721URIStorage, Ownable {
 
     event NFTUpdated(uint tokenID);
 
-    function getTokenURI(string memory svg, string memory name, string memory desc) public view returns (string memory finalJSON) {
-        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name":', name, '"description":', desc, '"image_data": "', bytes(svg), '"}'))));
+    function getTokenURI(string memory svg, string memory name, string memory desc) public pure returns (string memory finalJSON) {
+        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name":"', name, '", "description":"', desc, '", "image_data": "', bytes(svg), '"}'))));
         finalJSON = string(abi.encodePacked("data:application/json;base64,", json));
     }
 
@@ -33,8 +33,9 @@ contract NFTMint is ERC721URIStorage, Ownable {
 
         string memory svg = Base64.encode(bytes(string(abi.encodePacked(baseSVG, _text, '</text></svg>'))));
         string memory finalSVG = string(abi.encodePacked('data:image/svg+xml;base64,', svg));
-
+        console.log("%s", finalSVG);
         string memory finalJSON = getTokenURI(finalSVG, _text, 'A NFT minted from yaadein.xyz');
+        console.log("%s", finalJSON);
 
         _setTokenURI(tokenId, finalJSON);
 
@@ -45,11 +46,17 @@ contract NFTMint is ERC721URIStorage, Ownable {
         // msg.sender == date.highestBidder
         (address owner, uint minAmount, string memory date, bool sold, uint highestBidderId, uint tokenId) = nftMarketplace.listings(dayOfYear);
         (address bidder, string memory datE, uint bid, uint index) = nftMarketplace.bids(dayOfYear, highestBidderId);
+        console.log("%s %d %d Bids", bidder, index, bid);
         require(msg.sender == bidder, "You are not highest bidder");
 
         console.log("Yeah Minted");
         mint(dayOfYear, _tokenData);
         console.log("Yeah Minted2");
+    }
+
+    function getTokenData(uint day) public view returns (string memory json, address owner) {
+        json = tokenURI(day);
+        owner = ownerOf(day);
     }
 
     function mint(uint day, string memory _tokenData) internal returns (uint) {

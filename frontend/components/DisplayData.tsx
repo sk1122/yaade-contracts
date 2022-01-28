@@ -10,7 +10,9 @@ const DisplayData = (props: Props) => {
   const [eth, setEth] = useState('')
   
   var hours: any, minutes: any, seconds: any
-  const { account, availableDay, endsIn, selectedDate, setSelectedDate, bidOnDate, allBids, currentBid, fetchBid, updateBid, revokeBid, setHighestBidder, declareWinner, setIsOpen, setCurrentBid } = useAccountContext()
+  const { account, availableDay, endsIn, selectedDate, setSelectedDate, bidOnDate, allBids, currentBid, fetchBid, updateBid, revokeBid, findHighestBidder, declareWinner, setIsOpen, setCurrentBid, getListing } = useAccountContext()
+
+  const [listing, setListing] = useState(false)
 
   const rightClick = () => {
     if(selectedDate == availableDay[0]) {
@@ -38,6 +40,11 @@ const DisplayData = (props: Props) => {
   useEffect(() => {
     console.log(currentBid, "dsa")
   }, [currentBid])
+
+  useEffect(() => {
+    getListing(selectedDate.getDate())
+      .then((v: any) => setListing(v.sold))
+  }, [selectedDate])
 
   return (
     <div className="w-full">
@@ -95,7 +102,7 @@ const DisplayData = (props: Props) => {
           </div>
         </div>
         {/* input section */}
-        <div className="flex space-x-10 items-center justify-start w-4/6 mb-6">
+        {!listing && <div className="flex space-x-10 items-center justify-start w-4/6 mb-6">
           <div className="flex items-center w-full">
             <input value={eth} onChange={(e) => setEth(e.target.value)} className="flex-1 mr-2 rounded border-none outline-none text-black px-3 py-3 text-sm" />
             <div className="text-sm font-semibold w-4 h-4 fill-current text-gray-500 -ml-12 z-10">
@@ -111,7 +118,24 @@ const DisplayData = (props: Props) => {
               Bid
             </button>
           }
-        </div>
+        </div>}
+        {listing && <div className="flex space-x-10 items-center justify-start w-4/6 mb-6">
+          <div className="flex items-center w-full">
+            <input disabled={true} value={eth} onChange={(e) => setEth(e.target.value)} className="flex-1 mr-2 rounded border-none outline-none text-black px-3 py-3 text-sm" />
+            <div className="text-sm font-semibold w-4 h-4 fill-current text-gray-500 -ml-12 z-10">
+              ETH
+            </div>
+          </div>
+          {Number(currentBid) > 0 ?
+            <button className="ml-1 px-12 py-3 rounded text-sm font-semibold text-white bg-black">
+              Update
+            </button>
+          : 
+            <button className="ml-1 px-12 py-3 rounded text-sm font-semibold text-white bg-black">
+              Bid
+            </button>
+          }
+        </div>}
         {/* current top biders section */}
         <div className="w-4/6 flex flex-col space-y-4 rounded-lg mb-2">
           {allBids.map((value) => (
@@ -163,24 +187,10 @@ const DisplayData = (props: Props) => {
               <span>Delete Bid</span>
             </div>
           }
-          <div onClick={() => setHighestBidder(selectedDate.getDate())}>Highest Bidder</div>
+          <div onClick={() => findHighestBidder(selectedDate.getDate())}>Highest Bidder</div>
           <div onClick={() => declareWinner(selectedDate.getDate())}>Declare Winner</div>
         </div>
       </div>
-
-      <Modal>
-        <h3
-          className="text-lg font-medium leading-6 text-gray-900"
-        >
-          Day of the year - {selectedDate.getDate()} <span className='text-sm'>{selectedDate.toString()}</span>
-        </h3>
-
-        {allBids.map(value => (
-          <div className='flex justify-center items-start flex-col space-y-4'>
-            <h1>{value.bidder} - {ethers.utils.formatEther(value.bid.toString())} E</h1>
-          </div>
-        ))}
-      </Modal>
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import { Bid } from "../types/bid";
 import abi from "../interface/abi.json";
+import abi_nft from "../interface/abi_nft.json";
 
 
 declare global {
@@ -13,7 +14,12 @@ declare global {
   }
 }
 
-const CONTRACT_ADDRESS = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
+const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+const CONTRACT_ADDRESS_NFT = "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0";
+
+function getSVG(text: string) {
+  return `data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: black; font-family: Inter; font-size: 14px; }</style><rect width='100%' height='100%' fill='white' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>${text}</text></svg>`)}`
+}
 
 function dateFromDay(year: number, day: number) {
   var date = new Date(year, 0); // initialize a date in `year-01-01`
@@ -36,11 +42,18 @@ function MyApp({ Component, pageProps }: AppProps) {
     const [endsIn, setEndsIn] = useState(new Date())
 
     var provider: any, signer: any, contract: any;
+    var provider_nft: any, signer_nft: any, contract_nft: any;
 
     const connectContract = () => {
       provider = new ethers.providers.Web3Provider(window.ethereum);
       signer = provider.getSigner();
       contract = new ethers.Contract(CONTRACT_ADDRESS, abi.abi, signer);
+    };
+
+    const connectContract_nft = () => {
+      provider_nft = new ethers.providers.Web3Provider(window.ethereum);
+      signer_nft = provider.getSigner();
+      contract_nft = new ethers.Contract(CONTRACT_ADDRESS_NFT, abi_nft.abi, signer);
     };
 
     useEffect(() => {
@@ -225,12 +238,15 @@ function MyApp({ Component, pageProps }: AppProps) {
         return false
       }
     };
-
+    
     const findHighestBidder = async (listingId: number) => {
       connectContract();
-
+      
       try {
+        await contract.getHighestBid(listingId);
         let highestBidder = await contract.getHighestBidReturn(listingId);
+        console.log(highestBidder.bid.toString())
+        let winner = await contract.declareWinner(listingId, highestBidder.index.toNumber());
         return highestBidder
       } catch (e) {
         console.log(e)
@@ -240,13 +256,17 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     const declareWinner = async (listingId: number) => {
       connectContract();
-      let winner = await contract.declareWinner(listingId, 0);
     };
 
     const getWinner = async (listingId: number) => {
       connectContract()
-      let winner = await contract.getWinner(listingId)
-
+      let winner = await contract.listings(listingId)
+      console.log("---------------------------------------------------------------------")
+      console.log("Winner --> ", winner.highestBidderId.toNumber())
+      console.log("Winner --> ", winner)
+      console.log("---------------------------------------------------------------------")
+      // winner = await contract.bids(listingId, winner.highestBidderId.toNumber())
+      winner = await contract.getBid(0, 0)
       return winner
     }
 
@@ -259,6 +279,47 @@ function MyApp({ Component, pageProps }: AppProps) {
 
       return nft;
     };
+    
+    const getMintedNFT = async (day: number) => {
+      connectContract_nft()
+      try {
+        console.log(contract_nft)
+        var nft = await contract_nft.tokenURI(day)
+        var owner = await contract_nft.ownerOf(day)
+        nft = atob(nft.split(',')[1])
+      } catch (e) {
+        console.log(e)
+        return false
+      }
+      
+      return [nft, owner]
+    }
+
+    const mintNFT = async (day: number, text: string) => {
+      connectContract_nft()
+      try {
+        let svg = getSVG(text)
+        let json = await contract_nft.getTokenURI(svg, text, 'Yaadein')
+        let nft = await contract_nft.checkNFT(selectedDate.toLocaleDateString(), day, json)
+      } catch (e) {
+        console.log(e)
+        return false
+      }
+      
+      return true
+    }
+    
+    const changeNFT = async (day: number, text: string) => {
+      connectContract_nft()
+      try {
+        // let svg = getSVG(text)
+        // let json = await contract_nft.getTokenURI(svg, text, 'Yaadein')
+        let nft = await contract_nft.changeURI(day, text)
+      } catch (e) {
+        console.log(e)
+        return false
+      }
+    }
   
   	let sharedState: Context = {
       account,
@@ -305,7 +366,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       contract,
       connectContract,
       getWinner,
-      getListing
+      getListing,
+      mintNFT,
+      getMintedNFT,
+      changeNFT
 	  }
 
   return (

@@ -78,6 +78,10 @@ contract NFTMarketplace is ReentrancyGuard {
         return true;
     }
 
+    function getBid(uint _listingId, uint bidId) public view returns (Types.TokenBid memory bid) {
+        bid = bids[_listingId][bidId];
+    }
+
     function findBid(uint _listingId, address owner) public view returns (uint bidId, bool found) {
         Types.TokenBid[] memory _bids = bids[_listingId];
 
@@ -99,6 +103,8 @@ contract NFTMarketplace is ReentrancyGuard {
         uint length;
         if(bids[_listingId].length == 0) length = 0;
         else length = bids[_listingId].length;
+
+        console.log("%d", length);
 
         Types.TokenBid memory tokenBid = Types.TokenBid(msg.sender, listings[_listingId].date, bid, length);
         bids[_listingId].push(tokenBid);
@@ -153,6 +159,7 @@ contract NFTMarketplace is ReentrancyGuard {
             }
         }
         
+        console.log("%s %d last", highestBid.bidder, highestBid.bid);
         Types.TokenOffered storage offered = listings[_listingId];
         offered.highestBidderId = highestBid.index;
 
@@ -181,7 +188,7 @@ contract NFTMarketplace is ReentrancyGuard {
         listings[_listingId].owner = bid.bidder;
 
         for(uint i=0;i<bids[_listingId].length;i++) {
-            if(bids[_listingId][i].bidder != msg.sender) {
+            if(bids[_listingId][i].bidder != bid.bidder) {
                 payable(bids[_listingId][i].bidder).transfer(bids[_listingId][i].bid);
             }
         }

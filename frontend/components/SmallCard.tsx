@@ -4,6 +4,10 @@ import Modal from './Modal'
 
 type Props = {
   day: number
+  bidder: Listing
+  customClick: any
+  winner: boolean
+  nft: string
 };
 
 interface Listing {
@@ -11,24 +15,15 @@ interface Listing {
   owner: string
 }
 
-const SmallCard = (props: Props) => {
-  const { getListing, setIsOpen, selectedDate, account } = useAccountContext()
-  const [bidder, setBidder] = useState<Listing>()
-
-  useEffect(() => {
-    (async function() {
-      // setBid(await getListing(props.day + 1))
-      setBidder(await getListing(props.day + 1))
-    })()
-  }, [])
-
-  useEffect(() => console.log(bidder?.owner), [bidder])
+const SmallCard = ({day, bidder, customClick, winner, nft}: Props) => {
+  const { isOpen, getListing, setIsOpen, selectedDate, account, mintNFT, changeNFT } = useAccountContext()
+  const [text, setText] = useState('')
   
   return (
-    <div onClick={() => setIsOpen(true)} className="bg-white w-[165px] h-[165px] rounded">
+    <div onClick={customClick} className="bg-white w-[165px] h-[165px] rounded">
         <div className="h-1/4 flex justify-end items-center px-1">
           <span className="bg-black text-white px-3 rounded-full text-xs py-1">
-            {(bidder?.owner && bidder?.owner.startsWith('0x000') || new Date().getDate() >= props.day + 1) ? 
+            {(bidder?.owner && bidder?.owner.startsWith('0x000') || new Date().getDate() >= day + 1) ? 
               "Sold"
               :
               "Free"
@@ -37,20 +32,31 @@ const SmallCard = (props: Props) => {
           </span>
         </div>
         <div className="h-3/4 flex items-center justify-center font-bold text-7xl">
-          {props.day + 1}
+          {day + 1}
         </div>
 
         <Modal>
+          
+          <img src={nft} alt="" />
           <h3
             className="text-lg font-medium leading-6 text-gray-900"
           >
             Day of the year - {selectedDate.getDate()} <span className='text-sm'>{selectedDate.toString()}</span>
           </h3>
           <h3>Winner - {bidder?.owner && bidder?.owner}</h3>
-          {bidder?.owner && bidder?.owner.startsWith(account) && 
-            <div>
+          {winner && !bidder?.owner.startsWith('0x0000') && !nft && 
+            <div onClick={() => mintNFT(selectedDate.getDate(), 'Satyam')}>
               Claim
             </div>
+          }
+
+          {nft &&
+            <div>
+              <input value={text} onChange={(e) => setText(e.target.value)} type="text" className="p-1" placeholder="Update Text" />
+              <div onClick={() => changeNFT(selectedDate.getDate(), text)}>
+                Update NFT
+              </div>
+            </div> 
           }
         </Modal>
     </div>

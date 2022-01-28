@@ -23,7 +23,7 @@ const Modal: FC = ({ children }) => {
         <Dialog
           as="div"
           className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={closeModal}
+          onClose={openModal}
         >
           <div className="min-h-screen px-4 text-center">
             <Transition.Child
@@ -56,6 +56,9 @@ const Modal: FC = ({ children }) => {
             >
               <div className="text-inter inline-block w-1/2 space-y-5 max-w-full p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
                 {children}                
+              <div onClick={() => closeModal()}>
+                Close
+              </div>
               </div>
             </Transition.Child>
           </div>

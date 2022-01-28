@@ -14,11 +14,11 @@ async function main() {
   // await hre.run('compile');
   // We get the contract to deploy
   const Main = await hre.ethers.getContractFactory('NFTMint')
-  const main = await Main.deploy('0xa51c1fc2f0d1a1b8494ed1fe312d7c3a78ed91c0')
+  const main = await Main.deploy('0x5fbdb2315678afecb367f032d93f642f64180aa3')
 
   await main.deployed()
 
-  console.log(main)
+  console.log(main.address)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -48,7 +48,10 @@ export interface Context {
 	contract: any,
 	connectContract: Function,
 	getWinner: Function,
-	getListing: Function
+	getListing: Function,
+	mintNFT: Function,
+	getMintedNFT: Function,
+	changeNFT: Function
 }
 
 export const AppContext = createContext<Context>({} as Context);
