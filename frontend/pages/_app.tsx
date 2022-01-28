@@ -246,16 +246,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         await contract.getHighestBid(listingId);
         let highestBidder = await contract.getHighestBidReturn(listingId);
         console.log(highestBidder.bid.toString())
-        let winner = await contract.declareWinner(listingId, highestBidder.index.toNumber());
         return highestBidder
       } catch (e) {
         console.log(e)
         return false
       }
-    };
-
-    const declareWinner = async (listingId: number) => {
-      connectContract();
     };
 
     const getWinner = async (listingId: number) => {
@@ -359,7 +354,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       listNFT,
       setHighestBidder,
       findHighestBidder,
-      declareWinner,
       getNFT,
       provider,
       signer,

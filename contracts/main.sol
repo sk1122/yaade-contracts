@@ -163,6 +163,8 @@ contract NFTMarketplace is ReentrancyGuard {
         Types.TokenOffered storage offered = listings[_listingId];
         offered.highestBidderId = highestBid.index;
 
+        declareWinner(_listingId, highestBid.index);
+
         emit UpdateNFTListed(offered.owner, offered.minAmount, offered.date, offered.sold, offered.highestBidderId);
     }
 
@@ -181,7 +183,7 @@ contract NFTMarketplace is ReentrancyGuard {
         bid = highestBid;
     }
 
-    function declareWinner(uint _listingId, uint bidId) public {
+    function declareWinner(uint _listingId, uint bidId) internal {
         Types.TokenBid memory bid = bids[_listingId][bidId];
 
         listings[_listingId].sold = true;

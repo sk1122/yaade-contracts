@@ -41,7 +41,6 @@ export interface Context {
 	listNFT: Function,
 	setHighestBidder: Function,
 	findHighestBidder: Function,
-	declareWinner: Function,
 	getNFT: Function,
 	provider: any,
 	signer: any,
