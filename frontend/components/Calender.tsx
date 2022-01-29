@@ -10,7 +10,7 @@ interface Listing {
 }
 
 const Calender = (props: Props) => {
-  const { account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT } = useAccountContext()
+  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT } = useAccountContext()
 
   const [bidder, setBidder] = useState<Listing>({} as Listing)
   const [date, setDate] = useState(0)
@@ -50,15 +50,37 @@ const Calender = (props: Props) => {
     console.log(bid)
   }, [])
 
+  const nextMonth = () => {
+    const currMonth = new Date(Date.parse(month +" 1, 2012")).getMonth() + 1
+    const currYear = new Date(Date.parse(currMonth + " 1, " + year)).getFullYear()
+    const nextMonth = new Date(currYear, currMonth, 1);
+    
+    setMonth(nextMonth.toLocaleString(undefined, { month: 'long' }))
+    setYear(nextMonth.getFullYear().toString())
+    setNextDate(nextMonth)
+  }
+  
+  const prevMonth = () => {
+    let currMonth = new Date(Date.parse(month +" 1, 2012")).getMonth() - 1
+    currMonth = currMonth == 0 ? -1 : currMonth
+    const currYear = new Date(Date.parse(currMonth + " 1, " + year)).getFullYear()
+    const nextMonth = new Date(currYear, currMonth, 1);
+    
+    setMonth(nextMonth.toLocaleString(undefined, { month: 'long' }))
+    setYear(nextMonth.getFullYear().toString())
+    setNextDate(nextMonth)
+  }
+
   return (
-    <div onClick={() => setIsOpen(true)} className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
+    <div className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
       <div className="text-4xl font-bold mt-12 mb-10 mx-6 md:mx-2">
         With Calendar NFT cherish your memories forever
       </div>
       <div className="w-5/6 flex justify-end font-semibold mb-6">
-        <span>January 2022</span>
+        <span>{month} {year}</span>
         {/* left */}
         <svg
+          onClick={() => prevMonth()}
           className="w-6 h-6"
           fill="rgba(0, 0, 0, 0.5)"
           viewBox="0 0 20 20"
@@ -70,6 +92,7 @@ const Calender = (props: Props) => {
         </svg>
         {/* right */}
         <svg
+          onClick={() => nextMonth()}
           className="w-6 h-6"
           fill="currentColor"
           viewBox="0 0 20 20"
@@ -81,7 +104,7 @@ const Calender = (props: Props) => {
         </svg>
       </div>
       <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
-        {[...Array(new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()).keys()].map(value => (
+        {[...Array(new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate()).keys()].map(value => (
           <SmallCard day={value} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} />
         ))}
       </div>

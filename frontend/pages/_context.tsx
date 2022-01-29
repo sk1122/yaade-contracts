@@ -12,6 +12,8 @@ export interface Context {
 	setIsOpen: Function,
 	date: string,
 	setDate: Function,
+	nextDate: Date,
+	setNextDate: Function,
 	month: string,
 	setMonth: Function,
 	year: string,
@@ -50,7 +52,8 @@ export interface Context {
 	getListing: Function,
 	mintNFT: Function,
 	getMintedNFT: Function,
-	changeNFT: Function
+	changeNFT: Function,
+	getDayOnDate: Function
 }
 
 export const AppContext = createContext<Context>({} as Context);

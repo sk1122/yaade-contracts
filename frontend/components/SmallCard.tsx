@@ -16,7 +16,7 @@ interface Listing {
 }
 
 const SmallCard = ({day, bidder, customClick, winner, nft}: Props) => {
-  const { isOpen, getListing, setIsOpen, selectedDate, account, mintNFT, changeNFT } = useAccountContext()
+  const { isOpen, getListing, setIsOpen, selectedDate, account, mintNFT, changeNFT, getDayOnDate } = useAccountContext()
   const [text, setText] = useState('')
   
   return (
@@ -45,7 +45,7 @@ const SmallCard = ({day, bidder, customClick, winner, nft}: Props) => {
           </h3>
           <h3>Winner - {bidder?.owner && bidder?.owner}</h3>
           {winner && !bidder?.owner.startsWith('0x0000') && !nft && 
-            <div onClick={() => mintNFT(selectedDate.getDate(), 'Satyam')}>
+            <div onClick={() => mintNFT(getDayOnDate(selectedDate), 'Satyam')}>
               Claim
             </div>
           }
@@ -53,7 +53,7 @@ const SmallCard = ({day, bidder, customClick, winner, nft}: Props) => {
           {nft &&
             <div>
               <input value={text} onChange={(e) => setText(e.target.value)} type="text" className="p-1" placeholder="Update Text" />
-              <div onClick={() => changeNFT(selectedDate.getDate(), text)}>
+              <div onClick={() => changeNFT(getDayOnDate(selectedDate), text)}>
                 Update NFT
               </div>
             </div> 

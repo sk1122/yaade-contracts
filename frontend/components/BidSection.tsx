@@ -47,7 +47,8 @@ const BidSection = (props: Props) => {
     provider,
     signer,
     contract,
-    connectContract
+    connectContract,
+    getDayOnDate
   } = useAccountContext()
 
   useEffect(() => {
@@ -70,7 +71,7 @@ const BidSection = (props: Props) => {
 
   // will get all bids for current date
   useEffect(() => {
-    getAllBids(selectedDate.getDate())
+    getAllBids(getDayOnDate(selectedDate))
   }, [selectedDate])
 
   useEffect(() => {

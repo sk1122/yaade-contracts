@@ -10,7 +10,7 @@ const DisplayData = (props: Props) => {
   const [eth, setEth] = useState('')
   
   var hours: any, minutes: any, seconds: any
-  const { account, availableDay, endsIn, selectedDate, setSelectedDate, bidOnDate, allBids, currentBid, fetchBid, updateBid, revokeBid, findHighestBidder, setIsOpen, setCurrentBid, getListing } = useAccountContext()
+  const { getDayOnDate, account, availableDay, endsIn, selectedDate, setSelectedDate, bidOnDate, allBids, currentBid, fetchBid, updateBid, revokeBid, findHighestBidder, setIsOpen, setCurrentBid, getListing } = useAccountContext()
 
   const [listing, setListing] = useState(false)
 
@@ -33,7 +33,7 @@ const DisplayData = (props: Props) => {
   useEffect(() => {
     (async function () {
       setCurrentBid("0")
-      if(account !== "") await fetchBid(selectedDate.getDate())
+      if(account !== "") await fetchBid(getDayOnDate(selectedDate))
     })()
   }, [selectedDate, account])
 
@@ -42,7 +42,7 @@ const DisplayData = (props: Props) => {
   }, [currentBid])
 
   useEffect(() => {
-    getListing(selectedDate.getDate())
+    getListing(getDayOnDate(selectedDate))
       .then((v: any) => setListing(v.sold))
   }, [selectedDate])
 
@@ -110,11 +110,11 @@ const DisplayData = (props: Props) => {
             </div>
           </div>
           {Number(currentBid) > 0 ?
-            <button onClick={() => updateBid('', selectedDate.getDate(), eth)} className="ml-1 px-12 py-3 rounded text-sm font-semibold text-white bg-black">
+            <button onClick={() => updateBid('', getDayOnDate(selectedDate), eth)} className="ml-1 px-12 py-3 rounded text-sm font-semibold text-white bg-black">
               Update
             </button>
           : 
-            <button onClick={() => bidOnDate(selectedDate.getDate(), eth)} className="ml-1 px-12 py-3 rounded text-sm font-semibold text-white bg-black">
+            <button onClick={() => bidOnDate(getDayOnDate(selectedDate), eth)} className="ml-1 px-12 py-3 rounded text-sm font-semibold text-white bg-black">
               Bid
             </button>
           }
@@ -180,7 +180,7 @@ const DisplayData = (props: Props) => {
           </div>
 
           {Number(currentBid) > 0 && 
-            <div onClick={() => revokeBid('', selectedDate.getDate())} className="bg-red-600 text-white p-1 rounded-md cursor-pointer flex items-center text-sm">
+            <div onClick={() => revokeBid('', getDayOnDate(selectedDate))} className="bg-red-600 text-white p-1 rounded-md cursor-pointer flex items-center text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>

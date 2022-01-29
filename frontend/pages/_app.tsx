@@ -40,6 +40,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     const [sold, setSold] = useState(false);
     const [availableDay, setAvailableDay] = useState([])
     const [endsIn, setEndsIn] = useState(new Date())
+    const [nextDate, setNextDate] = useState(new Date())
 
     var provider: any, signer: any, contract: any;
     var provider_nft: any, signer_nft: any, contract_nft: any;
@@ -315,6 +316,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         return false
       }
     }
+
+    const getDayOnDate = (date: Date) => {
+      // @ts-ignore-next-line
+      return Math.round((date.setHours(23) - new Date(date.getFullYear(), 0, 1, 0, 0, 0))/1000/86400);
+    }
   
   	let sharedState: Context = {
       account,
@@ -363,7 +369,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       getListing,
       mintNFT,
       getMintedNFT,
-      changeNFT
+      changeNFT,
+      nextDate,
+      setNextDate,
+      getDayOnDate
 	  }
 
   return (
