@@ -43,7 +43,6 @@ const BidSection = (props: Props) => {
     submit,
     listNFT,
     findHighestBidder,
-    declareWinner,
     getNFT,
     provider,
     signer,

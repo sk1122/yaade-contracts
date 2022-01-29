@@ -10,7 +10,7 @@ const DisplayData = (props: Props) => {
   const [eth, setEth] = useState('')
   
   var hours: any, minutes: any, seconds: any
-  const { account, availableDay, endsIn, selectedDate, setSelectedDate, bidOnDate, allBids, currentBid, fetchBid, updateBid, revokeBid, findHighestBidder, declareWinner, setIsOpen, setCurrentBid, getListing } = useAccountContext()
+  const { account, availableDay, endsIn, selectedDate, setSelectedDate, bidOnDate, allBids, currentBid, fetchBid, updateBid, revokeBid, findHighestBidder, setIsOpen, setCurrentBid, getListing } = useAccountContext()
 
   const [listing, setListing] = useState(false)
 
@@ -187,8 +187,6 @@ const DisplayData = (props: Props) => {
               <span>Delete Bid</span>
             </div>
           }
-          <div onClick={() => findHighestBidder(selectedDate.getDate())}>Highest Bidder</div>
-          <div onClick={() => declareWinner(selectedDate.getDate())}>Declare Winner</div>
         </div>
       </div>
     </div>
