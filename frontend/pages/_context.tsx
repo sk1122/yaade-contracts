@@ -61,3 +61,5 @@ export const AppContext = createContext<Context>({} as Context);
 export function useAccountContext() {
   return useContext(AppContext);
 }
+
+export default function() {}

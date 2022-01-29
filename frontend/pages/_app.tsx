@@ -60,18 +60,18 @@ function MyApp({ Component, pageProps }: AppProps) {
     useEffect(() => {
       connectContract();
       contract.on("BidAdded", (bidder: string, id: number, bid: number, index: number) => {
-        getAllBids(selectedDate.getDate())
-        fetchBid(selectedDate.getDate())
+        getAllBids(getDayOnDate(selectedDate))
+        fetchBid(getDayOnDate(selectedDate))
       });
 
       contract.on("BidUpdated", (bidder: string, id: number, bid: number, index: number) => {
-        getAllBids(selectedDate.getDate())
-        fetchBid(selectedDate.getDate())
+        getAllBids(getDayOnDate(selectedDate))
+        fetchBid(getDayOnDate(selectedDate))
       });
 
       contract.on("BidRevoked", (bidder: string, id: number, bid: number, index: number) => {
-        getAllBids(selectedDate.getDate())
-        fetchBid(selectedDate.getDate())
+        getAllBids(getDayOnDate(selectedDate))
+        fetchBid(getDayOnDate(selectedDate))
       });
 
       contract.on("UpdateNFTListed", (owner: string, minAmount: number, date: string, sold: boolean, highestBidderId: number) => {
