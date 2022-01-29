@@ -62,4 +62,8 @@ export function useAccountContext() {
   return useContext(AppContext);
 }
 
-export default function() {}
+export default function() {
+	return (
+		<div></div>
+	)
+}
