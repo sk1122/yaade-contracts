@@ -50,7 +50,6 @@ export default function Home() {
       submit,
       listNFT,
       findHighestBidder,
-      declareWinner,
       getNFT,
       provider,
       signer,
