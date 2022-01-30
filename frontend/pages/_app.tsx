@@ -14,8 +14,8 @@ declare global {
   }
 }
 
-const CONTRACT_ADDRESS = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
-const CONTRACT_ADDRESS_NFT = "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0";
+const CONTRACT_ADDRESS = "0x32264ffdecaE87D1416614D8C845a996EC4FBCa5";
+const CONTRACT_ADDRESS_NFT = "0x0fd0f99F46010414dA6e7A6C3E643C546009cA9E";
 
 function getSVG(text: string) {
   return `data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: black; font-family: Inter; font-size: 14px; }</style><rect width='100%' height='100%' fill='white' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>${text}</text></svg>`)}`
@@ -48,13 +48,13 @@ function MyApp({ Component, pageProps }: AppProps) {
     const connectContract = () => {
       provider = new ethers.providers.Web3Provider(window.ethereum);
       signer = provider.getSigner();
-      contract = new ethers.Contract(CONTRACT_ADDRESS, abi.abi, signer);
+      contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
     };
 
     const connectContract_nft = () => {
       provider_nft = new ethers.providers.Web3Provider(window.ethereum);
       signer_nft = provider.getSigner();
-      contract_nft = new ethers.Contract(CONTRACT_ADDRESS_NFT, abi_nft.abi, signer);
+      contract_nft = new ethers.Contract(CONTRACT_ADDRESS_NFT, abi_nft, signer);
     };
 
     useEffect(() => {
