@@ -5,9 +5,9 @@ const CONTRACT_ADDRESS = '0x0b306bf915c4d645ff596e518faf3f9669b97016'
 
 var provider: any, signer: any, contract: any;
 const connectContract = () => {
-	provider = new ethers.providers.JsonRpcProvider()
+	provider = new ethers.providers.JsonRpcProvider('https://polygon-mumbai.g.alchemy.com/v2/oD--2OO92oeHck5VCVI4hKEnYNCQ8F1d')
 	signer = provider.getSigner()
-	contract = new ethers.Contract(CONTRACT_ADDRESS, abi.abi, signer)
+	contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer)
 }
 
 const mintNFT = async () => {
