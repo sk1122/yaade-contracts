@@ -119,6 +119,9 @@ export default function Home() {
 
   return (
     <div className="w-full h-screen">
+      <Head>
+        <title>Yaadein</title>
+      </Head>
       <Navbar />
       <BidSection />
       <Calender />

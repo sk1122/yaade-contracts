@@ -16,9 +16,10 @@ const Footer = (props: Props) => {
           <li className="cursor-pointer">Terms of Service</li>
         </ul>
         <div className="flex space-x-4 items-center">
-          <FaInstagramSquare size={"24px"} />
-          <FaFacebookSquare size={"24px"} />
-          <FaTwitter size={"24px"} />
+          <a href='https://twitter.com/rohannrk'><FaInstagramSquare size={"24px"} /></a>
+          <a href="https://satyamkulkarni.xyz"><FaFacebookSquare size={"24px"} /></a>
+          <a href="https://twitter.com/sk1122_"><FaTwitter size={"24px"} /></a>
+          <a href="https://twitter.com/v_3_n0m"><FaTwitter size={"24px"} /></a>
         </div>
       </div>
     </div>
