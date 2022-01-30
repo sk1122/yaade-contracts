@@ -10,7 +10,7 @@ interface Listing {
 }
 
 const Calender = (props: Props) => {
-  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT } = useAccountContext()
+  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT, getDayOnDate } = useAccountContext()
 
   const [bidder, setBidder] = useState<Listing>({} as Listing)
   const [date, setDate] = useState(0)
@@ -19,16 +19,20 @@ const Calender = (props: Props) => {
 
   useEffect(() => {
     setNFT('')
-    if(date > 0) {
-      getListing(date + 1)
-      .then((v: any) => {setBidder(v)})
+
+    const dayOfTheYear = getDayOnDate(new Date(nextDate.getFullYear(), nextDate.getMonth(), date)) + 1
+    console.log(dayOfTheYear, "dayOf")
+
+    if(dayOfTheYear > 0) {
+      getListing(dayOfTheYear)
+      .then((v: any) => {console.log(v, "Dsa"); setBidder(v)})
 
       getWinner(date)
       .then((v: any) => console.log(v))
 
       try {
         console.log(1)
-        getMintedNFT(date + 1)
+        getMintedNFT(dayOfTheYear)
         .then((json: any, owner: any) => {
           json = JSON.parse(json[0])
           setNFT(json['image_data'])
@@ -42,9 +46,17 @@ const Calender = (props: Props) => {
   useEffect(() => {
     console.log(bidder.owner, account)
     if(bidder && account) {
+      console.log(bidder.owner.toUpperCase() === account.toUpperCase())
       if(bidder.owner.toUpperCase() === account.toUpperCase()) setWinner(true)
+      else setWinner(false)
     }
   }, [bidder])
+
+  
+  const [d, setD] = useState(0)
+  useEffect(() => {
+    setD(getDayOnDate(new Date(nextDate.getFullYear(), nextDate.getMonth(), date)) + 1)
+  }, [isOpen])
 
   useEffect(() => {
     console.log(bid)
@@ -105,7 +117,7 @@ const Calender = (props: Props) => {
       </div>
       <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
         {[...Array(new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate()).keys()].map(value => (
-          <SmallCard day={value} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} />
+          <SmallCard day={value} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} d={d} />
         ))}
       </div>
     </div>

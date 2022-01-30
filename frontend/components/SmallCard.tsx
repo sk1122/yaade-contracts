@@ -8,6 +8,7 @@ type Props = {
   customClick: any
   winner: boolean
   nft: string
+  d: number
 };
 
 interface Listing {
@@ -15,10 +16,10 @@ interface Listing {
   owner: string
 }
 
-const SmallCard = ({day, bidder, customClick, winner, nft}: Props) => {
-  const { isOpen, getListing, setIsOpen, selectedDate, account, mintNFT, changeNFT, getDayOnDate } = useAccountContext()
+const SmallCard = ({day, bidder, customClick, winner, nft, d}: Props) => {
+  const { year, month, nextDate, isOpen, selectedDate, account, mintNFT, changeNFT, getDayOnDate } = useAccountContext()
   const [text, setText] = useState('')
-  
+
   return (
     <div onClick={customClick} className="bg-white w-[165px] h-[165px] rounded">
         <div className="h-1/4 flex justify-end items-center px-1">
@@ -41,7 +42,7 @@ const SmallCard = ({day, bidder, customClick, winner, nft}: Props) => {
           <h3
             className="text-lg font-medium leading-6 text-gray-900"
           >
-            Day of the year - {selectedDate.getDate()} <span className='text-sm'>{selectedDate.toString()}</span>
+            Day of the year - {d}
           </h3>
           <h3>Winner - {bidder?.owner && bidder?.owner}</h3>
           {winner && !bidder?.owner.startsWith('0x0000') && !nft && 
