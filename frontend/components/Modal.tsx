@@ -1,12 +1,15 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { ethers } from 'ethers'
-import { FC, Fragment, useState } from 'react'
+import { FC, Fragment, useEffect, useState } from 'react'
 import { Bid } from '../types/bid'
 import { useAccountContext } from '../pages/_context'
 
-type Props = {}
+type Props = {
+  date: number,
+  d: number
+}
 
-const Modal: FC = ({ children }) => {
+const Modal: FC<Props> = ({ date, d, children }) => {
   const { isOpen, setIsOpen, allBids, currentBid, selectedDate } = useAccountContext()
   
   function closeModal() {
@@ -16,6 +19,11 @@ const Modal: FC = ({ children }) => {
   function openModal() {
     setIsOpen(true)
   }
+
+  // useEffect(() => {
+  //   console.log(date, d, 'ds')
+  //   if(date == d) closeModal()
+  // }, [isOpen])
   
   return (
     <>

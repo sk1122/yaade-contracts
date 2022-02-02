@@ -1,6 +1,7 @@
 import SmallCard from "./SmallCard";
 import { useAccountContext } from '../pages/_context'
 import { useEffect, useState } from "react";
+import Modal from './Modal'
 
 type Props = {};
 
@@ -10,12 +11,13 @@ interface Listing {
 }
 
 const Calender = (props: Props) => {
-  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT, getDayOnDate } = useAccountContext()
+  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT, getDayOnDate, mintNFT, selectedDate, changeNFT } = useAccountContext()
 
   const [bidder, setBidder] = useState<Listing>({} as Listing)
   const [date, setDate] = useState(0)
   const [winner, setWinner] = useState(false)
   const [nft, setNFT] = useState('')
+  const [text, setText] = useState('')
 
   useEffect(() => {
     setNFT('')
@@ -117,9 +119,34 @@ const Calender = (props: Props) => {
       </div>
       <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
         {[...Array(new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate()).keys()].map(value => (
-          <SmallCard day={value} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} d={d} />
+          <SmallCard key={value} day={value} date={date} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} d={d} />
         ))}
       </div>
+
+      <Modal date={date} d={d}>
+          
+          <img src={nft} alt="" />
+          <h3
+            className="text-lg font-medium leading-6 text-gray-900"
+          >
+            Day of the year - {d}
+          </h3>
+          <h3>Winner - {bidder?.owner && bidder?.owner}</h3>
+          {winner && !bidder?.owner.startsWith('0x0000') && !nft && 
+            <div onClick={() => mintNFT(getDayOnDate(selectedDate), 'Satyam')}>
+              Claim
+            </div>
+          }
+
+          {nft && winner &&
+            <div>
+              <input value={text} onChange={(e) => setText(e.target.value)} type="text" className="p-1" placeholder="Update Text" />
+              <div onClick={() => changeNFT(getDayOnDate(selectedDate), text)}>
+                Update NFT
+              </div>
+            </div> 
+          }
+        </Modal>
     </div>
   );
 };
