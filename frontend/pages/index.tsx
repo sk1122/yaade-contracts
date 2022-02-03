@@ -127,7 +127,7 @@ export default function Home() {
         <meta property="og:url" content="https://yaadein.xyz" />
         <meta property="og:title" content="Yaadein - Store your memories on-chain" />
         <meta property="og:description" content="You can buy NFTs for a particular day and turn that into NFT and store whatever you want" />
-        <meta property="og:image" content="./og.png" />
+        <meta property="og:image" content="https://github.com/sk1122/yaade-contracts/blob/main/frontend/public/og.png?raw=true" />
       </Head>
       <Navbar />
       <BidSection />
