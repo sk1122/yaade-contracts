@@ -121,7 +121,7 @@ export default function Home() {
     <div className="w-full h-screen">
       <Head>
         <title>Yaadein</title>
-        <meta name="twitter:card" content="Yaadein" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@sk1122_" />
         <meta name="twitter:creator" content="@sk1122_" />
         <meta property="og:url" content="https://yaadein.xyz" />
