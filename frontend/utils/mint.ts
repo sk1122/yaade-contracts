@@ -21,6 +21,6 @@ const mintNFT = async () => {
 
 	const minted = await contract.mint(JSON.stringify(data))
 
-	console.log(minted)
+	// console.log(minted)
 }
 export default mintNFT

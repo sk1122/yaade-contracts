@@ -23,32 +23,32 @@ const Calender = (props: Props) => {
     setNFT('')
 
     const dayOfTheYear = getDayOnDate(new Date(nextDate.getFullYear(), nextDate.getMonth(), date)) + 1
-    console.log(dayOfTheYear, "dayOf")
+    // console.log(dayOfTheYear, "dayOf")
 
     if(dayOfTheYear > 0) {
       getListing(dayOfTheYear)
-      .then((v: any) => {console.log(v, "Dsa"); setBidder(v)})
+      .then((v: any) => {setBidder(v)})
 
       getWinner(date)
-      .then((v: any) => console.log(v))
+      .then((v: any) => {})
 
       try {
-        console.log(1)
+        // console.log(1)
         getMintedNFT(dayOfTheYear)
         .then((json: any, owner: any) => {
           json = JSON.parse(json[0])
           setNFT(json['image_data'])
         })
       } catch (e) {
-        console.log(e)
+        // console.log(e)
       }
     }
   }, [isOpen])
 
   useEffect(() => {
-    console.log(bidder.owner, account)
+    // console.log(bidder.owner, account)
     if(bidder && account) {
-      console.log(bidder.owner.toUpperCase() === account.toUpperCase())
+      // console.log(bidder.owner.toUpperCase() === account.toUpperCase())
       if(bidder.owner.toUpperCase() === account.toUpperCase()) setWinner(true)
       else setWinner(false)
     }
@@ -61,7 +61,7 @@ const Calender = (props: Props) => {
   }, [isOpen])
 
   useEffect(() => {
-    console.log(bid)
+    // console.log(bid)
   }, [])
 
   const nextMonth = () => {

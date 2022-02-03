@@ -23,7 +23,7 @@ const SmallCard = ({day, bidder, customClick, winner, nft, d, date}: Props) => {
   const [nftImage, setNftImage] = useState('')
 
   var a = nft
-  a.then((v: any) => {console.log(v); setNftImage(v)})
+  a.then((v: any) => {setNftImage(v)})
 
   return (
     <div onClick={customClick} className="relative bg-white w-[165px] h-[165px] rounded">

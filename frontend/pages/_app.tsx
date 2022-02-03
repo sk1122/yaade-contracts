@@ -51,7 +51,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         signer = provider.getSigner();
         contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
       } catch (e) {
-        console.log(e)
+        // console.log(e)
       }
     };
 
@@ -61,7 +61,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         signer_nft = provider_nft.getSigner();
         contract_nft = new ethers.Contract(CONTRACT_ADDRESS_NFT, abi_nft, signer_nft);
       } catch (e) {
-        console.log(e)
+        // console.log(e)
       }
     };
 
@@ -83,11 +83,11 @@ function MyApp({ Component, pageProps }: AppProps) {
       });
 
       contract.on("UpdateNFTListed", (owner: string, minAmount: number, date: string, sold: boolean, highestBidderId: number) => {
-        console.log("NFT", highestBidderId.toString());
+        // console.log("NFT", highestBidderId.toString());
       });
 
       contract.on("BidWinner", (bidder: string, _listingId: number, bid: number, bidId: number) => {
-          console.log("NFT", bidder, _listingId.toString(), bid.toString, bidId.toString());
+          // console.log("NFT", bidder, _listingId.toString(), bid.toString, bidId.toString());
       });
     }, [account]);
 
@@ -150,17 +150,17 @@ function MyApp({ Component, pageProps }: AppProps) {
       connectContract();
 
       try {
-        console.log(contract, listingId, account);
+        // console.log(contract, listingId, account);
         let [bidId, found] = await contract.findBid(listingId, account);
         if (!found) return null;
         bidId = bidId.toNumber();
 
         let bid = await contract.bids(listingId, bidId);
-        console.log(bid, bidId, listingId)
+        // console.log(bid, bidId, listingId)
         setCurrentBid(ethers.utils.formatEther(bid.bid.toString()))
         return bid;
       } catch (e) {
-        console.log(e);
+        // console.log(e);
         return false;
       }
     };
@@ -174,7 +174,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         const bid: any = await contract.addBid(day, options.value, options);
         await bid.wait();
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return false;
       }
 
@@ -211,7 +211,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         connectContract();
         var bids = await contract.getBids(listingId);
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return
       }
       setAllBids(bids)
@@ -243,7 +243,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         let highestBidder = await contract.getHighestBid(listingId);
         return highestBidder
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return false
       }
     };
@@ -254,10 +254,10 @@ function MyApp({ Component, pageProps }: AppProps) {
       try {
         await contract.getHighestBid(listingId);
         let highestBidder = await contract.getHighestBidReturn(listingId);
-        console.log(highestBidder.bid.toString())
+        // console.log(highestBidder.bid.toString())
         return highestBidder
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return false
       }
     };
@@ -265,10 +265,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     const getWinner = async (listingId: number) => {
       connectContract()
       let winner = await contract.listings(listingId)
-      console.log("---------------------------------------------------------------------")
-      console.log("Winner --> ", winner.highestBidderId.toNumber())
-      console.log("Winner --> ", winner)
-      console.log("---------------------------------------------------------------------")
+      // console.log("---------------------------------------------------------------------")
+      // console.log("Winner --> ", winner.highestBidderId.toNumber())
+      // console.log("Winner --> ", winner)
+      // console.log("---------------------------------------------------------------------")
       // winner = await contract.bids(listingId, winner.highestBidderId.toNumber())
       winner = await contract.getBid(0, 0)
       return winner
@@ -292,7 +292,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         var owner = await contract_nft.ownerOf(day)
         nft = atob(nft.split(',')[1])
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return false
       }
       
@@ -306,7 +306,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         let json = await contract_nft.getTokenURI(svg, text, 'Yaadein')
         let nft = await contract_nft.checkNFT(selectedDate.toLocaleDateString(), day, json)
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return false
       }
       
@@ -320,7 +320,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         // let json = await contract_nft.getTokenURI(svg, text, 'Yaadein')
         let nft = await contract_nft.changeURI(day, text)
       } catch (e) {
-        console.log(e)
+        // console.log(e)
         return false
       }
     }

@@ -75,7 +75,7 @@ const BidSection = (props: Props) => {
   }, [selectedDate])
 
   useEffect(() => {
-    console.log("All Bids --> ", allBids)
+    // console.log("All Bids --> ", allBids)
   }, [allBids])
 
   return (

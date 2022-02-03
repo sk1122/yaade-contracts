@@ -38,7 +38,7 @@ const DisplayData = (props: Props) => {
   }, [selectedDate, account])
 
   useEffect(() => {
-    console.log(currentBid, "dsa")
+    // console.log(currentBid, "dsa")
   }, [currentBid])
 
   useEffect(() => {
