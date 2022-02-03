@@ -121,6 +121,13 @@ export default function Home() {
     <div className="w-full h-screen">
       <Head>
         <title>Yaadein</title>
+        <meta name="twitter:card" content="Yaadein" />
+        <meta name="twitter:site" content="@sk1122_" />
+        <meta name="twitter:creator" content="@sk1122_" />
+        <meta property="og:url" content="https://yaadein.xyz" />
+        <meta property="og:title" content="Yaadein - Store your memories on-chain" />
+        <meta property="og:description" content="You can buy NFTs for a particular day and turn that into NFT and store whatever you want" />
+        <meta property="og:image" content="./og.png" />
       </Head>
       <Navbar />
       <BidSection />
