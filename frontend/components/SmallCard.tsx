@@ -7,7 +7,7 @@ type Props = {
   bidder: Listing
   customClick: any
   winner: boolean
-  nft: string
+  nft: any
   d: number,
   date: number
 };
@@ -20,21 +20,21 @@ interface Listing {
 const SmallCard = ({day, bidder, customClick, winner, nft, d, date}: Props) => {
   const { year, month, nextDate, isOpen, selectedDate, account, mintNFT, changeNFT, getDayOnDate } = useAccountContext()
 
+  const [nftImage, setNftImage] = useState('')
+
+  var a = nft
+  a.then((v: any) => {console.log(v); setNftImage(v)})
+
   return (
-    <div onClick={customClick} className="bg-white w-[165px] h-[165px] rounded">
-        <div className="h-1/4 flex justify-end items-center px-1">
-          <span className="bg-black text-white px-3 rounded-full text-xs py-1">
-            {(bidder?.owner && bidder?.owner.startsWith('0x000') || new Date().getDate() >= day + 1) ? 
-              "Sold"
-              :
-              "Free"
-            }
-            {(bidder?.owner && bidder?.owner.startsWith(account)) && "Winner"}
-          </span>
-        </div>
-        <div className="h-3/4 flex items-center justify-center font-bold text-7xl">
-          {day + 1}
-        </div>
+    <div onClick={customClick} className="relative bg-white w-[165px] h-[165px] rounded">
+          {nftImage && nftImage.length > 0 && 
+            <img src={nftImage} className='absolute h-full w-full p-0 m-0 ' alt="" />
+          }
+          {(!nftImage || (nftImage && !nftImage.startsWith('data:'))) && 
+            <div className="h-full flex items-center justify-center font-bold text-7xl">
+              <span>{day + 1}</span>
+            </div>
+          }
     </div>
   );
 };

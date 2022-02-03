@@ -46,15 +46,23 @@ function MyApp({ Component, pageProps }: AppProps) {
     var provider_nft: any, signer_nft: any, contract_nft: any;
 
     const connectContract = () => {
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      signer = provider.getSigner();
-      contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+      try {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+      } catch (e) {
+        console.log(e)
+      }
     };
 
     const connectContract_nft = () => {
-      provider_nft = new ethers.providers.Web3Provider(window.ethereum);
-      signer_nft = provider.getSigner();
-      contract_nft = new ethers.Contract(CONTRACT_ADDRESS_NFT, abi_nft, signer);
+      try {
+        provider_nft = new ethers.providers.Web3Provider(window.ethereum);
+        signer_nft = provider_nft.getSigner();
+        contract_nft = new ethers.Contract(CONTRACT_ADDRESS_NFT, abi_nft, signer_nft);
+      } catch (e) {
+        console.log(e)
+      }
     };
 
     useEffect(() => {
@@ -267,19 +275,19 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
 
     const getNFT = async (day: number) => {
-      connectContract();
-
-      let nft = await contract.getNFT(day);
-
-      console.log(nft);
-
-      return nft;
+      try {
+        connectContract_nft();
+        let nft = await contract_nft.tokenURI(day);
+        // console.log(nft, day);
+        return nft;
+      } catch (e) {
+        // console.log(e, day)
+      }
     };
     
     const getMintedNFT = async (day: number) => {
       connectContract_nft()
       try {
-        console.log(contract_nft)
         var nft = await contract_nft.tokenURI(day)
         var owner = await contract_nft.ownerOf(day)
         nft = atob(nft.split(',')[1])

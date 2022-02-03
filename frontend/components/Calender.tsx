@@ -11,7 +11,7 @@ interface Listing {
 }
 
 const Calender = (props: Props) => {
-  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT, getDayOnDate, mintNFT, selectedDate, changeNFT } = useAccountContext()
+  const { month, setMonth, year, setYear, nextDate, setNextDate, account, isOpen, setIsOpen, getListing, bid, getWinner, getMintedNFT, getNFT, getDayOnDate, mintNFT, selectedDate, changeNFT } = useAccountContext()
 
   const [bidder, setBidder] = useState<Listing>({} as Listing)
   const [date, setDate] = useState(0)
@@ -85,6 +85,16 @@ const Calender = (props: Props) => {
     setNextDate(nextMonth)
   }
 
+  const getNFTs = async (value: number) => {
+    value = getDayOnDate(new Date(nextDate.getFullYear(), nextDate.getMonth(), value))
+    try {
+      var nft = await getNFT(value + 1)
+      nft = await atob(nft.split(',')[1])
+      nft = await JSON.parse(nft)['image_data']
+      return nft
+    } catch(e) {}
+  }
+
   return (
     <div className="flex flex-col items-center bg-[#FCF2EA] h-fit mt-32 pb-20">
       <div className="text-4xl font-bold mt-12 mb-10 mx-6 md:mx-2">
@@ -119,7 +129,7 @@ const Calender = (props: Props) => {
       </div>
       <div className="w-5/6 grid grid-cols-2 md:grid-cols-7 gap-y-4 place-items-center">
         {[...Array(new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate()).keys()].map(value => (
-          <SmallCard key={value} day={value} date={date} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={nft} d={d} />
+          <SmallCard key={value} day={value} date={date} bidder={bidder} customClick={() => {setIsOpen(true); setDate(value)}} winner={winner} nft={getNFTs(value)} d={d} />
         ))}
       </div>
 
