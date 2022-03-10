@@ -14,5 +14,4 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '12'
-    - run: npm i -g truffle
-    - run: truffle compile
+    - run: npx hardhat compile
