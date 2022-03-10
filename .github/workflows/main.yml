@@ -15,4 +15,4 @@ jobs:
       with:
         node-version: '12'
     - run: yarn
-    - run: yarn hardhat compile
+    - run: npx hardhat compile
