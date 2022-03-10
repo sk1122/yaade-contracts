@@ -14,5 +14,5 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '12'
-    - run: npm i
+    - run: npm i hardhat @openzeppelin/contracts
     - run: hardhat compile
